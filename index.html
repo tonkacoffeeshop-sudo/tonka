@@ -8,36 +8,54 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tonka">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#EEEADF">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="theme-color" content="#EEEADE">
+<link rel="apple-touch-icon" href="icon-t-180.png">
+<link rel="icon" type="image/png" href="icon-t-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  :root { --bg: #EEEADF; --bar: #FFFFFF; }
+  :root { --bg: #EEEADE; --bar: #FFFFFF; }
   @media (prefers-color-scheme: dark) { :root { --bar: #201B17; } }
-  html, body { margin: 0; height: 100%; background: var(--bar); overflow: hidden; }
-  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); }
-  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .3s; }
-  .splash img { width: 160px; height: 160px; }
-  .splash.off { opacity: 0; pointer-events: none; }
-  .err { position: fixed; inset: 0; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: var(--bg); }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  body.ready { background: var(--bar); }
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .5s ease; }
+  iframe.show { opacity: 1; }
+  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .5s ease; }
+  .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: translateY(6px); transition: opacity 1s ease, transform 1s ease; }
+  .splash.in img { opacity: 1; transform: none; }
+  .splash.out img { opacity: 0; transform: translateY(-4px); transition-duration: .8s; }
+  .splash.gone { opacity: 0; pointer-events: none; }
+  .err { position: fixed; inset: 0; z-index: 3; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: var(--bg); }
+  @media (prefers-reduced-motion: reduce) { .splash img, .splash, iframe { transition: none; } }
 </style>
 </head>
 <body>
-<div class="splash" id="splash"><img src="icon-512.png" alt="Tonka"></div>
-<div class="err" id="err">Chưa có link app. Mở file index.html và dán link Web app (kết thúc bằng /exec) vào dòng APP_URL.</div>
+<div class="splash" id="splash"><img src="tonka-full.png" alt="tonka. good coffee in town"></div>
+<div class="err" id="err">Chưa có link app. Mở file config.js và dán link Web app (kết thúc bằng /exec) vào giữa hai dấu nháy.</div>
 <iframe id="app" title="Tonka Ca Làm" allow="clipboard-write"></iframe>
+<script src="config.js"></script>
 <script>
-  // ===== DÁN LINK WEB APP CỦA QUÁN VÀO GIỮA HAI DẤU NHÁY ĐƠN DƯỚI ĐÂY =====
-  var APP_URL = 'https://script.google.com/macros/s/AKfycbyRFLzis8hBwj9OTDX9lJ_A0Wj9ke3AP5_Q91g0KHmekY-5Eo-ZlKKcOzW6K3QYVFp7oA/exec';
-  // =========================================================================
-  var f = document.getElementById('app'), sp = document.getElementById('splash');
-  if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(APP_URL)) {
-    sp.classList.add('off'); f.style.display = 'none'; document.getElementById('err').style.display = 'block';
+  var url = window.APP_URL || '';
+  var sp = document.getElementById('splash'), f = document.getElementById('app');
+  var MIN_SHOW = 1800, loaded = false, shown = false, t0 = Date.now();
+  // logo hiện dần
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ sp.classList.add('in'); }); });
+  function finish(){
+    if (shown) return; shown = true;
+    var wait = Math.max(0, MIN_SHOW - (Date.now() - t0));
+    setTimeout(function(){
+      sp.classList.add('out');                       // logo mờ dần
+      setTimeout(function(){
+        sp.classList.add('gone'); f.classList.add('show'); document.body.classList.add('ready');
+        setTimeout(function(){ sp.remove(); }, 600);
+      }, 800);
+    }, wait);
+  }
+  if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) {
+    document.getElementById('err').style.display = 'block';
   } else {
-    f.addEventListener('load', function(){ setTimeout(function(){ sp.classList.add('off'); }, 400); });
-    setTimeout(function(){ sp.classList.add('off'); }, 8000);
-    f.src = APP_URL;
+    f.addEventListener('load', function(){ loaded = true; finish(); });
+    setTimeout(finish, 9000);                        // mạng chậm vẫn vào app
+    f.src = url;
   }
 </script>
 </body>
