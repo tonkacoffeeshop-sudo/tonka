@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tonka</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tonka">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EEEADF">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root { --bg: #EEEADF; --bar: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --bar: #201B17; } }
+  html, body { margin: 0; height: 100%; background: var(--bar); overflow: hidden; }
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); }
+  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .3s; }
+  .splash img { width: 160px; height: 160px; }
+  .splash.off { opacity: 0; pointer-events: none; }
+  .err { position: fixed; inset: 0; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: var(--bg); }
+</style>
+</head>
+<body>
+<div class="splash" id="splash"><img src="icon-512.png" alt="Tonka"></div>
+<div class="err" id="err">Chưa có link app. Mở file index.html và dán link Web app (kết thúc bằng /exec) vào dòng APP_URL.</div>
+<iframe id="app" title="Tonka Ca Làm" allow="clipboard-write"></iframe>
+<script>
+  // ===== DÁN LINK WEB APP CỦA QUÁN VÀO GIỮA HAI DẤU NHÁY ĐƠN DƯỚI ĐÂY =====
+  var APP_URL = 'https://script.google.com/macros/s/AKfycbyRFLzis8hBwj9OTDX9lJ_A0Wj9ke3AP5_Q91g0KHmekY-5Eo-ZlKKcOzW6K3QYVFp7oA/exec';
+  // =========================================================================
+  var f = document.getElementById('app'), sp = document.getElementById('splash');
+  if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(APP_URL)) {
+    sp.classList.add('off'); f.style.display = 'none'; document.getElementById('err').style.display = 'block';
+  } else {
+    f.addEventListener('load', function(){ setTimeout(function(){ sp.classList.add('off'); }, 400); });
+    setTimeout(function(){ sp.classList.add('off'); }, 8000);
+    f.src = APP_URL;
+  }
+</script>
+</body>
+</html>
