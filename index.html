@@ -7,28 +7,37 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tonka">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#EEEADE" id="themeColor">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="apple-touch-icon" href="icon-t-180.png">
 <link rel="icon" type="image/png" href="icon-t-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  :root { --bg: #EEEADE; --bar: #FFFFFF; }
-  @media (prefers-color-scheme: dark) { :root { --bar: #15120F; } }
+  :root { --bg: #EEEADE; --bar: #FFFFFF; --top: #6B4430; --st: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) { :root { --bar: #15120F; --top: #15120F; } }
+  .topbar { position: fixed; left: 0; right: 0; top: 0; height: var(--st); background: var(--top); z-index: 5; }
+  /* phủ thêm 1px xuống dưới để không lộ đường viền giữa dải trên và app */
+  .standalone .topbar { height: calc(var(--st) + 1px); }
+  @media (prefers-color-scheme: dark) { iframe { background: #15120F !important; } body, body.ready { background: #15120F; } }
   html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
   body.ready { background: var(--bar); }
-  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .5s ease; }
+  iframe { position: fixed; left: 0; right: 0; top: var(--st); width: 100%; height: calc(100% - var(--st) - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .3s ease; }
   iframe.show { opacity: 1; }
-  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .5s ease; }
-  .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: translateY(6px); transition: opacity 1s ease, transform 1s ease; }
+  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .3s ease; }
+  .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; }
   .splash.in img { opacity: 1; transform: none; }
-  .splash.out img { opacity: 0; transform: translateY(-4px); transition-duration: .8s; }
+  .splash.out img { opacity: 0; transform: translateY(-4px); transition-duration: .35s; }
   .splash.gone { opacity: 0; pointer-events: none; }
   .err { position: fixed; inset: 0; z-index: 3; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: var(--bg); }
   @media (prefers-reduced-motion: reduce) { .splash img, .splash, iframe { transition: none; } }
 </style>
 </head>
 <body>
+<div class="topbar" aria-hidden="true"></div>
 <div class="splash" id="splash"><img src="tonka-full.png" alt="tonka. good coffee in town"></div>
 <div class="err" id="err">Chưa có link app. Mở file config.js và dán link Web app (kết thúc bằng /exec) vào giữa hai dấu nháy.</div>
 <iframe id="app" title="Tonka Ca Làm" allow="clipboard-write"></iframe>
@@ -44,6 +53,7 @@
       document.documentElement.style.background = c;
     }
     apply();
+    if (window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) document.documentElement.classList.add('standalone');
     if (mq) { if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply); }
     document.addEventListener('visibilitychange', function(){ if (!document.hidden) apply(); });
   })();
@@ -54,10 +64,9 @@
   var sp = document.getElementById('splash'), f = document.getElementById('app');
   // Căn logo vào đúng giữa màn hình thật: khi mở từ màn hình chính, trang bắt đầu dưới thanh trạng thái
   try {
-    var bar = window.navigator.standalone ? Math.max(0, Math.min(80, screen.height - window.innerHeight)) : 0;
-    sp.style.paddingBottom = (bar + 12) + 'px';
+    sp.style.paddingBottom = '12px';
   } catch (e) {}
-  var MIN_SHOW = 1800, loaded = false, shown = false, t0 = Date.now();
+  var MIN_SHOW = 700, loaded = false, shown = false, t0 = Date.now();
   // logo hiện dần
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ sp.classList.add('in'); }); });
   function finish(){
@@ -68,7 +77,7 @@
       setTimeout(function(){
         sp.classList.add('gone'); f.classList.add('show'); document.body.classList.add('ready');
         setTimeout(function(){ sp.remove(); }, 600);
-      }, 800);
+      }, 350);
     }, wait);
   }
   if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) {
