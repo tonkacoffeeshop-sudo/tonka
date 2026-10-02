@@ -8,30 +8,35 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tonka">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#EEEADE">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F2F1EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15120F" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <link rel="apple-touch-icon" href="icon-t-180.png">
 <link rel="icon" type="image/png" href="icon-t-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  :root { --bg: #EEEADE; --bar: #FFFFFF; }
-  @media (prefers-color-scheme: dark) { :root { --bar: #201B17; } }
-  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
-  body.ready { background: var(--bar); }
-  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .5s ease; }
+  /* Màu nền trùng với nền app: iOS 26+ lấy màu nền trang để tô vùng thanh trạng thái */
+  :root { --bg: #F2F1EE; --bar: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #15120F; --bar: #201B17; } }
+  html, body { margin: 0; height: 100%; background-color: var(--bg); overflow: hidden; }
+  .bottom { position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--bar); opacity: 0; transition: opacity .3s ease; }
+  body.ready .bottom { opacity: 1; }
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .3s ease; }
   iframe.show { opacity: 1; }
-  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .5s ease; }
+  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .3s ease; }
   .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; }
   .splash.in img { opacity: 1; transform: none; }
   .splash.out img { opacity: 0; transform: translateY(-4px); transition-duration: .35s; }
   .splash.gone { opacity: 0; pointer-events: none; }
-  .err { position: fixed; inset: 0; z-index: 3; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: var(--bg); }
+  .err { position: fixed; inset: 0; z-index: 3; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: #F2F1EE; }
   @media (prefers-reduced-motion: reduce) { .splash img, .splash, iframe { transition: none; } }
 </style>
 </head>
 <body>
-<div class="splash" id="splash"><img src="tonka-full.png" alt="tonka. good coffee in town"></div>
+<div class="splash" id="splash"><picture><source srcset="tonka-full-dark.png" media="(prefers-color-scheme: dark)"><img src="tonka-full-light.png" alt="tonka. good coffee in town"></picture></div>
+<div class="bottom" aria-hidden="true"></div>
 <div class="err" id="err">Chưa có link app. Mở file config.js và dán link Web app (kết thúc bằng /exec) vào giữa hai dấu nháy.</div>
 <iframe id="app" title="Tonka Ca Làm" allow="clipboard-write"></iframe>
 <script src="config.js"></script>
