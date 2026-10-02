@@ -7,27 +7,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tonka">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#EEEADE" id="themeColor">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EEEADE">
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="apple-touch-icon" href="icon-t-180.png">
 <link rel="icon" type="image/png" href="icon-t-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  :root { --bg: #EEEADE; --bar: #FFFFFF; --top: #6B4430; --st: env(safe-area-inset-top, 0px); }
-  @media (prefers-color-scheme: dark) { :root { --bar: #15120F; --top: #15120F; } }
-  .topbar { position: fixed; left: 0; right: 0; top: 0; height: var(--st); background: var(--top); z-index: 5; }
-  /* phủ thêm 1px xuống dưới để không lộ đường viền giữa dải trên và app */
-  .standalone .topbar { height: calc(var(--st) + 1px); }
-  @media (prefers-color-scheme: dark) { iframe { background: #15120F !important; } body, body.ready { background: #15120F; } }
+  :root { --bg: #EEEADE; --bar: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root { --bar: #201B17; } }
   html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
   body.ready { background: var(--bar); }
-  iframe { position: fixed; left: 0; right: 0; top: var(--st); width: 100%; height: calc(100% - var(--st) - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .3s ease; }
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .5s ease; }
   iframe.show { opacity: 1; }
-  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .3s ease; }
+  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .5s ease; }
   .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; }
   .splash.in img { opacity: 1; transform: none; }
   .splash.out img { opacity: 0; transform: translateY(-4px); transition-duration: .35s; }
@@ -37,34 +31,17 @@
 </style>
 </head>
 <body>
-<div class="topbar" aria-hidden="true"></div>
 <div class="splash" id="splash"><img src="tonka-full.png" alt="tonka. good coffee in town"></div>
 <div class="err" id="err">Chưa có link app. Mở file config.js và dán link Web app (kết thúc bằng /exec) vào giữa hai dấu nháy.</div>
 <iframe id="app" title="Tonka Ca Làm" allow="clipboard-write"></iframe>
-<script>
-  // Thanh trên cùng đổi màu theo chế độ sáng/tối của máy (đổi ngay cả khi app đang mở)
-  (function(){
-    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-    function apply(){
-      var dark = mq && mq.matches, c = dark ? '#15120F' : '#EEEADE';
-      var old = document.getElementById('themeColor');
-      var m = document.createElement('meta'); m.name = 'theme-color'; m.id = 'themeColor'; m.content = c;
-      if (old) old.parentNode.replaceChild(m, old); else document.head.appendChild(m);
-      document.documentElement.style.background = c;
-    }
-    apply();
-    if (window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) document.documentElement.classList.add('standalone');
-    if (mq) { if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply); }
-    document.addEventListener('visibilitychange', function(){ if (!document.hidden) apply(); });
-  })();
-</script>
 <script src="config.js"></script>
 <script>
   var url = window.APP_URL || '';
   var sp = document.getElementById('splash'), f = document.getElementById('app');
   // Căn logo vào đúng giữa màn hình thật: khi mở từ màn hình chính, trang bắt đầu dưới thanh trạng thái
   try {
-    sp.style.paddingBottom = '12px';
+    var bar = window.navigator.standalone ? Math.max(0, Math.min(80, screen.height - window.innerHeight)) : 0;
+    sp.style.paddingBottom = (bar + 12) + 'px';
   } catch (e) {}
   var MIN_SHOW = 700, loaded = false, shown = false, t0 = Date.now();
   // logo hiện dần
