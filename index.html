@@ -65,8 +65,10 @@
   if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) {
     document.getElementById('err').style.display = 'block';
   } else {
-    f.addEventListener('load', function(){ loaded = true; finish(); });
-    setTimeout(finish, 9000);                        // mạng chậm vẫn vào app
+    // Chờ app báo "đã vẽ xong" rồi mới bỏ màn logo, để chuyển cảnh một lần, không nháy
+    window.addEventListener('message', function(e){ if (e.data === 'tonka-ready') finish(); });
+    f.addEventListener('load', function(){ loaded = true; setTimeout(finish, 5000); });  // dự phòng nếu không nhận được tin
+    setTimeout(finish, 12000);                       // mạng rất chậm vẫn vào app
     f.src = url;
   }
 </script>
