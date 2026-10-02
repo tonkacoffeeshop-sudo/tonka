@@ -36,6 +36,11 @@
 <script>
   var url = window.APP_URL || '';
   var sp = document.getElementById('splash'), f = document.getElementById('app');
+  // Căn logo vào đúng giữa màn hình thật: khi mở từ màn hình chính, trang bắt đầu dưới thanh trạng thái
+  try {
+    var bar = window.navigator.standalone ? Math.max(0, Math.min(80, screen.height - window.innerHeight)) : 0;
+    sp.style.paddingBottom = (bar + 12) + 'px';
+  } catch (e) {}
   var MIN_SHOW = 1800, loaded = false, shown = false, t0 = Date.now();
   // logo hiện dần
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ sp.classList.add('in'); }); });
