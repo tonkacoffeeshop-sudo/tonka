@@ -23,15 +23,18 @@
   html, body { margin: 0; height: 100%; background-color: var(--bg); overflow: hidden; }
   .bottom { position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--bar); opacity: 0; transition: opacity .3s ease; }
   body.ready .bottom { opacity: 1; }
-  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .3s ease; }
-  iframe.show { opacity: 1; }
-  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg); transition: opacity .3s ease; }
-  .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; }
+  /* App nằm sẵn phía sau màn logo và được vẽ đầy đủ từ trước, nên khi màn logo tan đi không có khung trống nào lộ ra */
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg);
+           transform: scale(.965); transform-origin: 50% 45%; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+  iframe.show { transform: none; }
+  .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg);
+            transition: opacity .5s cubic-bezier(.4, 0, .2, 1); will-change: opacity; }
+  .splash img { width: min(72vw, 360px); height: auto; opacity: 0; transform: scale(.97); transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); will-change: opacity, transform; }
   .splash.in img { opacity: 1; transform: none; }
-  .splash.out img { opacity: 0; transform: translateY(-4px); transition-duration: .35s; }
   .splash.gone { opacity: 0; pointer-events: none; }
+  .splash.gone img { opacity: 0; transform: scale(1.06); transition: opacity .4s ease, transform .5s cubic-bezier(.4, 0, .2, 1); }
   .err { position: fixed; inset: 0; z-index: 3; display: none; padding: 32px 24px; font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #3d332c; background: #F2F1EE; }
-  @media (prefers-reduced-motion: reduce) { .splash img, .splash, iframe { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .splash img, .splash, iframe, .bottom { transition: none !important; } iframe { transform: none; } }
 </style>
 </head>
 <body>
@@ -48,18 +51,18 @@
     var bar = window.navigator.standalone ? Math.max(0, Math.min(80, screen.height - window.innerHeight)) : 0;
     sp.style.paddingBottom = (bar + 12) + 'px';
   } catch (e) {}
-  var MIN_SHOW = 700, loaded = false, shown = false, t0 = Date.now();
+  var MIN_SHOW = 1000, loaded = false, shown = false, t0 = Date.now();
   // logo hiện dần
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ sp.classList.add('in'); }); });
   function finish(){
     if (shown) return; shown = true;
     var wait = Math.max(0, MIN_SHOW - (Date.now() - t0));
     setTimeout(function(){
-      sp.classList.add('out');                       // logo mờ dần
-      setTimeout(function(){
+      // một chuyển cảnh duy nhất: logo phóng nhẹ và tan, nền logo mờ dần, app phía sau phóng về đúng cỡ
+      requestAnimationFrame(function(){
         sp.classList.add('gone'); f.classList.add('show'); document.body.classList.add('ready');
-        setTimeout(function(){ sp.remove(); }, 600);
-      }, 350);
+        setTimeout(function(){ sp.remove(); }, 700);
+      });
     }, wait);
   }
   if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) {
