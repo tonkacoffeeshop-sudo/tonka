@@ -8,13 +8,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tonka">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#EEEADE">
+<meta name="theme-color" content="#EEEADE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15120F" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="icon-t-180.png">
 <link rel="icon" type="image/png" href="icon-t-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
   :root { --bg: #EEEADE; --bar: #FFFFFF; }
-  @media (prefers-color-scheme: dark) { :root { --bar: #201B17; } }
+  @media (prefers-color-scheme: dark) { :root { --bar: #15120F; } }
   html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
   body.ready { background: var(--bar); }
   iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); opacity: 0; transition: opacity .5s ease; }
