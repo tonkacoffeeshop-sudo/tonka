@@ -22,9 +22,9 @@
   @media (prefers-color-scheme: dark) { :root { --bg: #15120F; --bar: #201B17; } }
   html, body { margin: 0; height: 100%; background-color: var(--bg); overflow: hidden; }
   .bottom { position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--bar); opacity: 0; transition: opacity .3s ease; }
-  body.ready .bottom { opacity: 1; }
+  body.ready .bottom { opacity: 0; }
   /* App nằm sẵn phía sau màn logo và được vẽ đầy đủ từ trước, nên khi màn logo tan đi không có khung trống nào lộ ra */
-  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg);
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: 100%; border: 0; background: var(--bg);
            transform: scale(.965); transform-origin: 50% 45%; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
   iframe.show { transform: none; }
   .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg);
@@ -40,6 +40,7 @@
 <body>
 <div class="splash" id="splash"><picture><source srcset="tonka-full-dark.png" media="(prefers-color-scheme: dark)"><img src="tonka-full-light.png" alt="tonka. good coffee in town"></picture></div>
 <div class="bottom" aria-hidden="true"></div>
+<div id="sabProbe" style="position:fixed;left:0;bottom:0;width:1px;height:env(safe-area-inset-bottom, 0px);visibility:hidden;pointer-events:none"></div>
 <div class="err" id="err">Chưa có link app. Mở file config.js và dán link Web app (kết thúc bằng /exec) vào giữa hai dấu nháy.</div>
 <iframe id="app" title="Tonka Ca Làm" allow="clipboard-write"></iframe>
 <script src="config.js"></script>
@@ -69,7 +70,11 @@
     document.getElementById('err').style.display = 'block';
   } else {
     // Chờ app báo "đã vẽ xong" rồi mới bỏ màn logo, để chuyển cảnh một lần, không nháy
-    window.addEventListener('message', function(e){ if (e.data === 'tonka-ready') finish(); });
+    // App chạy trong khung nên không tự biết khoảng vạch Home ở đáy máy: trang vỏ đo rồi gửi vào để menu dưới nằm sát mép
+    var appWin = null;
+    function sendInsets(){ if (!appWin) return; var p = document.getElementById('sabProbe'); try { appWin.postMessage({tonka: 'insets', bottom: p ? p.offsetHeight : 0}, '*'); } catch (e) {} }
+    window.addEventListener('message', function(e){ if (e.data === 'tonka-ready') { appWin = e.source; sendInsets(); finish(); } });
+    window.addEventListener('resize', sendInsets);
     f.addEventListener('load', function(){ loaded = true; setTimeout(finish, 5000); });  // dự phòng nếu không nhận được tin
     setTimeout(finish, 12000);                       // mạng rất chậm vẫn vào app
     f.src = url;
