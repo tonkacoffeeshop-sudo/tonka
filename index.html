@@ -20,11 +20,12 @@
   /* Màu nền trùng với nền app: iOS 26+ lấy màu nền trang để tô vùng thanh trạng thái */
   :root { --bg: #F2F1EE; --bar: #FFFFFF; }
   @media (prefers-color-scheme: dark) { :root { --bg: #15120F; --bar: #201B17; } }
-  html, body { margin: 0; height: 100%; background-color: var(--bg); overflow: hidden; }
+  html, body { margin: 0; height: 100%; width: 100%; background-color: var(--bg); overflow: hidden; touch-action: pan-y; overscroll-behavior: none; }
   .bottom { position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px); background: var(--bar); opacity: 0; transition: opacity .3s ease; }
   body.ready .bottom { opacity: 0; }
   /* App nằm sẵn phía sau màn logo và được vẽ đầy đủ từ trước, nên khi màn logo tan đi không có khung trống nào lộ ra */
-  iframe { position: fixed; left: 0; right: 0; top: 0; width: 100%; height: 100%; border: 0; background: var(--bg);
+  /* iPhone hay tự nới rộng khung theo nội dung: ép khung luôn đúng bề ngang màn hình */
+  iframe { position: fixed; left: 0; right: 0; top: 0; width: 1px; min-width: 100%; max-width: 100%; height: 100%; border: 0; background: var(--bg);
            transform: scale(.965); transform-origin: 50% 45%; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
   iframe.show { transform: none; }
   .splash { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; background: var(--bg);
