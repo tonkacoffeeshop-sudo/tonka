@@ -34,7 +34,10 @@
   .splash.in img { opacity: 1; transform: none; }
   .splash.gone { opacity: 0; pointer-events: none; }
   .splash.gone img { opacity: 0; transform: scale(1.06); transition: opacity .4s ease, transform .5s cubic-bezier(.4, 0, .2, 1); }
-  .reconn { position: fixed; left: 0; right: 0; bottom: calc(18% + env(safe-area-inset-bottom, 0px)); z-index: 4; text-align: center; font: 15px/1.4 system-ui, -apple-system, sans-serif; color: #7a6d63; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+  :root { --pad: 12px; }
+  .splash { padding-bottom: var(--pad); box-sizing: border-box; transition: opacity .5s cubic-bezier(.4, 0, .2, 1), padding .4s ease; }
+  body.rc .splash { padding-bottom: calc(var(--pad) + 14vh); }
+  .reconn { position: fixed; left: 0; right: 0; top: calc((100% - var(--pad)) / 2 - 7vh + min(17vw, 84px) + 26px); z-index: 4; text-align: center; font: 15px/1.4 system-ui, -apple-system, sans-serif; color: #7a6d63; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
   .reconn.on { opacity: 1; pointer-events: auto; }
   .reconn button { margin-top: 12px; font: 600 16px system-ui, -apple-system, sans-serif; padding: 12px 26px; border-radius: 12px; border: 0; background: #6B4430; color: #fff; display: none; }
   .reconn.slow button { display: inline-block; }
@@ -57,7 +60,7 @@
   // Căn logo vào đúng giữa màn hình thật: khi mở từ màn hình chính, trang bắt đầu dưới thanh trạng thái
   try {
     var bar = window.navigator.standalone ? Math.max(0, Math.min(80, screen.height - window.innerHeight)) : 0;
-    sp.style.paddingBottom = (bar + 12) + 'px';
+    document.documentElement.style.setProperty('--pad', (bar + 12) + 'px');
   } catch (e) {}
   var MIN_SHOW = 1000, loaded = false, shown = false, t0 = Date.now();
   // logo hiện dần
@@ -69,7 +72,7 @@
       // một chuyển cảnh duy nhất: logo phóng nhẹ và tan, nền logo mờ dần, app phía sau phóng về đúng cỡ
       requestAnimationFrame(function(){
         sp.classList.add('gone'); f.classList.add('show'); document.body.classList.add('ready');
-        var rcx = document.getElementById('reconn'); if (rcx) rcx.classList.remove('on', 'slow');
+        var rcx = document.getElementById('reconn'); if (rcx) rcx.classList.remove('on', 'slow'); document.body.classList.remove('rc');
         setTimeout(function(){ sp.remove(); }, 700);
       });
     }, wait);
@@ -82,7 +85,7 @@
     var appWin = null, lastPong = Date.now(), pingT = null, slowT = null, reloading = false, hiddenAt = 0;
     var rc = document.getElementById('reconn'), rcText = document.getElementById('reconnText');
     function sendInsets(){ if (!appWin) return; var p = document.getElementById('sabProbe'); try { appWin.postMessage({tonka: 'insets', bottom: p ? p.offsetHeight : 0}, '*'); } catch (e) {} }
-    function hideReconn(){ rc.classList.remove('on', 'slow'); clearTimeout(slowT); }
+    function hideReconn(){ rc.classList.remove('on', 'slow'); document.body.classList.remove('rc'); clearTimeout(slowT); }
     // Tải lại app (khi app bên trong không phản hồi, mất kết nối, hoặc mở lần đầu quá lâu)
     function reloadApp(why){
       if (reloading) return; reloading = true; appWin = null;
@@ -91,7 +94,7 @@
         s2.innerHTML = '<picture><source srcset="tonka-full-dark.png" media="(prefers-color-scheme: dark)"><img src="tonka-full-light.png" alt="tonka."></picture>';
         document.body.appendChild(s2); sp = s2; shown = false; t0 = Date.now();
       }
-      rcText.textContent = 'Đang kết nối lại…'; rc.classList.add('on');
+      rcText.textContent = 'Đang kết nối lại…'; rc.classList.add('on'); document.body.classList.add('rc');
       clearTimeout(slowT); slowT = setTimeout(function(){ rcText.textContent = 'Mạng chậm hoặc máy chủ đang bận.'; rc.classList.add('slow'); }, 20000);
       f.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'r=' + Date.now();
       setTimeout(function(){ reloading = false; }, 3000);
