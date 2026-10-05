@@ -35,9 +35,9 @@
   .splash.gone { opacity: 0; pointer-events: none; }
   .splash.gone img { opacity: 0; transform: scale(1.06); transition: opacity .4s ease, transform .5s cubic-bezier(.4, 0, .2, 1); }
   :root { --pad: 12px; }
-  .splash { padding-bottom: var(--pad); box-sizing: border-box; transition: opacity .5s cubic-bezier(.4, 0, .2, 1), padding .4s ease; }
-  body.rc .splash { padding-bottom: calc(var(--pad) + 14vh); }
-  .reconn { position: fixed; left: 0; right: 0; top: calc((100% - var(--pad)) / 2 - 7vh + min(17vw, 84px) + 26px); z-index: 4; text-align: center; font: 15px/1.4 system-ui, -apple-system, sans-serif; color: #7a6d63; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+  /* Logo đặt cao hơn tâm hình học một chút (khoảng 46% chiều cao) cho cân mắt; màn kết nối lại dùng cùng vị trí */
+  .splash { padding-bottom: calc(var(--pad) + 6vh); box-sizing: border-box; transition: opacity .5s cubic-bezier(.4, 0, .2, 1), padding .4s ease; }
+  .reconn { position: fixed; left: 0; right: 0; top: calc((100% - var(--pad)) / 2 - 3vh + min(17vw, 84px) + 26px); z-index: 4; text-align: center; font: 15px/1.4 system-ui, -apple-system, sans-serif; color: #7a6d63; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
   .reconn.on { opacity: 1; pointer-events: auto; }
   .reconn button { margin-top: 12px; font: 600 16px system-ui, -apple-system, sans-serif; padding: 12px 26px; border-radius: 12px; border: 0; background: #6B4430; color: #fff; display: none; }
   .reconn.slow button { display: inline-block; }
