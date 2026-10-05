@@ -547,7 +547,8 @@ function api(fn){
   }).then(function(v){ NET_FAILS = 0; return v; });
 }
 function saveState(st){ try { localStorage.setItem('tonka_state', JSON.stringify({tok: TOK, at: Date.now(), st: st})); if (st && st.me) localStorage.setItem('tonka_u_' + st.me.id, JSON.stringify({at: Date.now(), st: st})); } catch (e) {} }
-function setState(st, at){ D = st; CLOCK = {min: toMin(st.hm), at: at || Date.now()}; if (!at) saveState(st); if (LOGOV !== null && st.cfg.logoV !== LOGOV) loadLogo(); else if (LOGOV === null && DIRECT) { try { if (localStorage.getItem('tonka_logo_v') !== st.cfg.logoV) loadLogo(); } catch (e) {} } LOGOV = st.cfg.logoV; try { localStorage.setItem('tonka_logo_v', st.cfg.logoV); } catch (e) {} }
+function setState(st, at){ D = st; CLOCK = {min: toMin(st.hm), at: at || Date.now()}; if (!at) saveState(st); syncLogo(st.cfg.logoV); }
+function syncLogo(v){ if (v == null || v === LOGOV) return; LOGOV = v; var had = ''; try { had = localStorage.getItem('tonka_logo_v') || ''; } catch (e) {} if (v === '0') { try { localStorage.removeItem('tonka_logo'); localStorage.setItem('tonka_logo_v', '0'); } catch (e) {} if (LOGO) { LOGO = ''; render(); } return; } if (!LOGO || had !== v) loadLogo(v); }
 function errMsg(e){ return String((e && e.message) || e).replace(/^(Exception|Error):\s*/, ''); }
 function handleErr(e){
   var m = errMsg(e);
@@ -685,7 +686,8 @@ function pinSubmit(){
 // ---------- logo ----------
 function markSeg(b){ [].forEach.call(b.parentNode.children, function(x){ x.setAttribute('aria-pressed', String(x === b)); }); }
 function logoHtml(){ return LOGO ? '<img class="mono-t logo" src="' + LOGO + '" alt="Logo Tonka">' : '<div class="mono-t" aria-hidden="true">t</div>'; }
-function loadLogo(){ api('getLogo').then(function(l){ LOGO = l || ''; try { if (LOGO) localStorage.setItem('tonka_logo', LOGO); else localStorage.removeItem('tonka_logo'); } catch (e) {} render(); }).catch(function(){}); }
+var LOGO_BUSY = false, LOGO_WANT = '';
+function loadLogo(v){ if (v) LOGO_WANT = v; if (LOGO_BUSY) return; LOGO_BUSY = true; api('getLogo').then(function(l){ LOGO_BUSY = false; LOGO = l || ''; try { if (LOGO) localStorage.setItem('tonka_logo', LOGO); else localStorage.removeItem('tonka_logo'); if (LOGO_WANT) localStorage.setItem('tonka_logo_v', LOGO_WANT); } catch (e) {} render(); }).catch(function(){ LOGO_BUSY = false; LOGOV = null; }); }
 function pickLogo(file){
   var fr = new FileReader();
   fr.onload = function(){
@@ -1746,7 +1748,7 @@ setInterval(function(){ if (D && !S.sheet && (S.view === 'today' || S.view === '
 
 // ---------- khởi động ----------
 (function start(){
-  if (!window.__LOGO__ && !(DIRECT && (function(){ try { return localStorage.getItem('tonka_logo_v') != null; } catch (e) { return false; } })())) loadLogo();
+  if (!LOGO && (function(){ try { return localStorage.getItem('tonka_logo_v') !== '0'; } catch (e) { return true; } })()) loadLogo();
   if (TOK) {
     S.booting = true;
     try { var cs = JSON.parse(localStorage.getItem('tonka_state') || 'null'); if (cs && cs.tok === TOK && cs.st && Date.now() - cs.at < 3 * 86400000) setState(cs.st, cs.at); } catch (e) {}

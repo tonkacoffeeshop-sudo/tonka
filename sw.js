@@ -1,6 +1,6 @@
 /* Tonka – lưu giao diện app trong máy để mở ngay, kể cả khi mạng chậm.
    Dữ liệu (chấm công, checklist…) KHÔNG lưu ở đây: luôn lấy từ máy chủ Google. */
-const CACHE = 'tonka-ui-8fa1bd28ce';
+const CACHE = 'tonka-ui-9365aa1a00';
 const CORE = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-t-180.png?v=2', 'icon-t-192.png?v=2'];
 self.addEventListener('install', function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(CORE.map(function(u){ return new Request(u, {cache: 'reload'}); })); }).catch(function(){}).then(function(){ return self.skipWaiting(); }));
